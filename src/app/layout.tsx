@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 import CustomCursor from "@/components/CustomCursor";
+import TransitionLayout from "@/components/TransitionLayout";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -35,7 +36,9 @@ export default function RootLayout({
         <div className="grain-overlay" aria-hidden="true" />
         <div className="scanlines" aria-hidden="true" />
         <CustomCursor />
-        {children}
+        <TransitionLayout>
+          {children}
+        </TransitionLayout>
       </body>
     </html>
   );

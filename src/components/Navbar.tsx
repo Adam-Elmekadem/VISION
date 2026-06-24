@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { useCart } from "@/store/cart";
 
 gsap.registerPlugin(useGSAP);
 
@@ -19,6 +20,8 @@ export default function Navbar() {
   const logoRef = useRef<HTMLAnchorElement>(null);
   const linksRef = useRef<HTMLUListElement>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
+  const totalItems = useCart((s) => s.totalItems());
+  const toggleCart = useCart((s) => s.toggleCart);
 
   useGSAP(
     () => {
@@ -95,8 +98,9 @@ export default function Navbar() {
 
           <button
             className="navbar-icon-btn"
-            aria-label="Cart (0 items)"
+            aria-label={`Cart (${totalItems} items)`}
             type="button"
+            onClick={toggleCart}
             style={{ position: "relative" }}
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -104,7 +108,11 @@ export default function Navbar() {
               <circle cx="7.5" cy="14.5" r="1.2" fill="currentColor" />
               <circle cx="13.5" cy="14.5" r="1.2" fill="currentColor" />
             </svg>
-            <span className="cart-badge" aria-label="0 items in cart">0</span>
+            {totalItems > 0 && (
+              <span className="cart-badge" aria-label={`${totalItems} items in cart`}>
+                {totalItems > 9 ? "9+" : totalItems}
+              </span>
+            )}
           </button>
         </div>
       </div>
