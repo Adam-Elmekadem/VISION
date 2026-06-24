@@ -1,49 +1,80 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import gsap from "gsap";
 
 export default function TransitionLayout({ children }: { children: React.ReactNode }) {
-  const wrapRef    = useRef<HTMLDivElement>(null);
-  const curtainRef = useRef<HTMLDivElement>(null);
-  const pathname   = usePathname();
+  const curtainRef    = useRef<HTMLDivElement>(null);
+  const pathname      = usePathname();
+  const router        = useRouter();
+  const transitioning = useRef(false);
 
-  // Entrance wipe on every route change
+  // ── INTERCEPT all internal <a> clicks BEFORE Next.js navigates ────────────
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const anchor = (e.target as HTMLElement).closest("a");
+      if (!anchor) return;
+
+      const href = anchor.getAttribute("href");
+      if (
+        !href ||
+        href.startsWith("http") ||
+        href.startsWith("mailto") ||
+        href.startsWith("tel") ||
+        href.startsWith("#") ||
+        anchor.target === "_blank"
+      ) return;
+
+      // Already mid-transition — block double-click
+      if (transitioning.current) { e.preventDefault(); return; }
+
+      e.preventDefault();
+      transitioning.current = true;
+
+      const curtain = curtainRef.current;
+      if (!curtain) { router.push(href); return; }
+
+      // EXIT: curtain sweeps DOWN from top, covering the current page
+      gsap.fromTo(
+        curtain,
+        { scaleY: 0, transformOrigin: "top center" },
+        {
+          scaleY: 1,
+          duration: 0.38,
+          ease: "power4.inOut",
+          onComplete: () => router.push(href),
+        }
+      );
+    };
+
+    // Capture phase — fires before Next.js's own click handler
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [router]);
+
+  // ── ENTRANCE: curtain is already covering the new page; lift it away ───────
   useEffect(() => {
     const curtain = curtainRef.current;
-    const wrap    = wrapRef.current;
-    if (!curtain || !wrap) return;
+    if (!curtain) return;
 
-    const tl = gsap.timeline();
-    // 1. Curtain comes down from top
-    tl.fromTo(curtain,
-      { scaleY: 0, transformOrigin: "top center" },
-      { scaleY: 1, duration: 0.38, ease: "power4.inOut" }
-    )
-    // 2. Page content swaps (happens while curtain is fully covering)
-    .set(wrap, { opacity: 0 })
-    // 3. Curtain lifts away from bottom
-    .to(curtain, {
-      scaleY: 0,
-      transformOrigin: "bottom center",
-      duration: 0.42,
-      ease: "power4.inOut",
-    })
-    // 4. Page fades in underneath
-    .to(wrap, { opacity: 1, duration: 0.25, ease: "power2.out" }, "-=0.15");
-
-    return () => { tl.kill(); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    gsap.fromTo(
+      curtain,
+      { scaleY: 1, transformOrigin: "bottom center" },
+      {
+        scaleY: 0,
+        duration: 0.45,
+        ease: "power4.inOut",
+        delay: 0.05,
+        onComplete: () => { transitioning.current = false; },
+      }
+    );
   }, [pathname]);
 
   return (
     <>
-      {/* Full-screen wipe curtain — styles via CSS class to avoid SSR/hydration mismatch */}
-      <div ref={curtainRef} aria-hidden="true" className="transition-curtain" />
-      <div ref={wrapRef}>
-        {children}
-      </div>
+      <div ref={curtainRef} aria-hidden="true" className="transition-curtain" suppressHydrationWarning />
+      <div>{children}</div>
     </>
   );
 }

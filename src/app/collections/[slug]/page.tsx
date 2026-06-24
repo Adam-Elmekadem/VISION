@@ -12,8 +12,6 @@ import { getCollectionBySlug } from "@/lib/collections";
 import { getProductsByCollection, type Product } from "@/lib/products";
 import Navbar from "@/components/Navbar";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
-
 function CollectionProductCard({ product, index }: { product: Product; index: number }) {
   return (
     <Link href={`/product/${product.slug}`} className="shop-card">
@@ -62,6 +60,8 @@ export default function CollectionDetailPage({ params }: { params: Promise<{ slu
   const containerRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
     // Parallax on hero image
     gsap.to(".col-hero-img img", {
       yPercent: -10,

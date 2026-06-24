@@ -62,8 +62,9 @@ body {
   inset: 0;
   z-index: 99997;
   background: var(--orange);
-  transform-origin: top center;
-  transform: scaleY(0);
+  /* Starts COVERING the page — GSAP lifts it on every route arrival */
+  transform: scaleY(1);
+  transform-origin: bottom center;
   pointer-events: none;
   will-change: transform;
 }

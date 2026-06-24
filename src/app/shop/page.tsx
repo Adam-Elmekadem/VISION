@@ -1,17 +1,12 @@
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import { useSearch } from "@/hooks/useSearch";
 import { products, type Product } from "@/lib/products";
 import Navbar from "@/components/Navbar";
-
-gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // ─── Filter config ────────────────────────────────────────────────────────────
 const CATEGORIES  = ["all", "eyeglasses", "sunglasses"] as const;
@@ -86,7 +81,6 @@ function ShopCard({ product, index }: { product: Product; index: number }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ShopPage() {
-  const pageRef    = useRef<HTMLDivElement>(null);
   const [category, setCategory] = useState<Category>("all");
   const [material, setMaterial] = useState<Material>("all");
   const [sort, setSort]         = useState<Sort>("new");
@@ -111,7 +105,7 @@ export default function ShopPage() {
   return (
     <>
       <Navbar />
-      <div ref={pageRef} className="shop-page">
+      <div className="shop-page">
 
         {/* ── Page header ─────────────────────────────────────────── */}
         <div className="shop-header">
