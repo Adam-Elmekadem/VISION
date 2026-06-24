@@ -1,0 +1,108 @@
+name: Sync to Portfolio
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # allow manual trigger from GitHub Actions tab
+
+jobs:
+  sync:
+    name: Push project data → AE-Portfolio
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout THIS project ────────────────────────────────────────
+      - name: Checkout project repo
+        uses: actions/checkout@v4
+
+      # ── 2. Validate project.config.json ────────────────────────────────
+      - name: Validate config
+        id: validate
+        run: |
+          if [ ! -f project.config.json ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "⚠ No project.config.json found — skipping sync."
+            exit 0
+          fi
+
+          # Check every required field is present and non-empty
+          MISSING=$(cat project.config.json | jq -r '
+            ["id","slug","title","category","year","description","tags","color","accentColor","coverImage","images","story","whyBuilt","collaborators"]
+            | map(select(. as $k | (env | .[$k] // "") == ""))
+            | .[]
+          ' 2>/dev/null || true)
+
+          # Use jq to check required keys exist
+          VALID=$(cat project.config.json | jq '
+            has("id") and has("slug") and has("title") and has("category") and
+            has("year") and has("description") and has("tags") and
+            has("color") and has("accentColor") and has("coverImage") and
+            has("images") and has("story") and has("whyBuilt") and has("collaborators")
+          ')
+
+          if [ "$VALID" != "true" ]; then
+            echo "❌ project.config.json is missing required fields."
+            cat project.config.json | jq 'keys'
+            exit 1
+          fi
+
+          SLUG=$(cat project.config.json | jq -r '.slug')
+          TITLE=$(cat project.config.json | jq -r '.title')
+          echo "✓ Config valid — slug: $SLUG | title: $TITLE"
+          echo "slug=$SLUG" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      # ── 3. Checkout the Portfolio repo ─────────────────────────────────
+      - name: Checkout AE-Portfolio
+        if: steps.validate.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: Adam-Elmekadem/AE-Portfolio
+          token: ${{ secrets.PORTFOLIO_PAT }}
+          path: _portfolio
+
+      # ── 4. Merge project into projects.json ────────────────────────────
+      - name: Merge into projects.json
+        if: steps.validate.outputs.skip != 'true'
+        run: |
+          PROJECT=$(cat project.config.json)
+          SLUG=$(echo "$PROJECT" | jq -r '.slug')
+          DATA_FILE="_portfolio/src/data/projects.json"
+
+          if [ ! -f "$DATA_FILE" ]; then
+            echo "[]" > "$DATA_FILE"
+          fi
+
+          CURRENT=$(cat "$DATA_FILE")
+
+          # If slug exists → update in place. If new → append. Then sort by id.
+          UPDATED=$(echo "$CURRENT" | jq \
+            --argjson proj "$PROJECT" '
+              if any(.[]; .slug == $proj.slug)
+              then map(if .slug == $proj.slug then $proj else . end)
+              else . + [$proj]
+              end
+              | sort_by(.id)
+            ')
+
+          echo "$UPDATED" | jq '.' > "$DATA_FILE"
+          echo "✓ projects.json updated for slug: $SLUG"
+
+      # ── 5. Commit & push to portfolio ──────────────────────────────────
+      - name: Commit to AE-Portfolio
+        if: steps.validate.outputs.skip != 'true'
+        run: |
+          cd _portfolio
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/projects.json
+
+          if git diff --cached --quiet; then
+            echo "✓ Portfolio already up to date — no commit needed."
+          else
+            REPO="${{ github.repository }}"
+            SHA="${{ github.sha }}"
+            git commit -m "chore(sync): update ${{ steps.validate.outputs.slug }} from ${REPO}@${SHA:0:7}"
+            git push
+            echo "✓ Portfolio updated — Netlify will redeploy automatically."
+          fi

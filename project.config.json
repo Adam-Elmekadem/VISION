@@ -1,0 +1,37 @@
+{
+  "id": "06",
+  "slug": "vision",
+  "title": "VISION",
+  "category": "E-Commerce / Motion",
+  "year": "2025",
+  "description": "Futuristic eyeglasses e-commerce shop with a Y2K dark-mode aesthetic, saturated orange accent, GSAP scroll animations, and Motion v12 3D tilt interactions.",
+  "tags": ["Next.js 16", "GSAP", "Motion v12", "Tailwind CSS v4", "TypeScript"],
+  "color": "#1A0A00",
+  "accentColor": "#FF4D00",
+  "live": "https://vision-eyewear.netlify.app",
+  "coverImage": "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?auto=format&fit=crop&w=1200&q=85",
+  "images": [
+    "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?auto=format&fit=crop&w=1200&q=85",
+    "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=1200&q=85",
+    "https://images.unsplash.com/photo-1508296695527-9b57e44e49e5?auto=format&fit=crop&w=1200&q=85"
+  ],
+  "story": {
+    "headline": "Eyewear as a portal to another dimension.",
+    "paragraphs": [
+      "VISION is a full-featured e-commerce front-end for a futuristic eyeglasses brand. The brief was sharp: dark mode, saturated orange, Y2K aesthetic — and every interaction had to feel like it belonged in a sci-fi film.",
+      "The hero is a full-viewport animated aurora background with a single search input — nothing else. Below it, three 3D-tilt product cards respond to the cursor in real time, a GSAP parallax philosophy section, and a staggered new-arrivals grid complete the experience.",
+      "The navbar uses a CSS :has() sibling blur — hovering one link blurs all the others — a pattern lifted from Clonix that gives the nav a cinematic depth without any JavaScript state."
+    ]
+  },
+  "whyBuilt": {
+    "headline": "To push the boundary between product site and art installation.",
+    "paragraphs": [
+      "Most e-commerce sites look the same: white background, product grid, checkout. VISION was a deliberate inversion — what happens when you treat a glasses shop like a luxury fashion house with a futuristic identity?",
+      "The technical challenge was stacking GSAP and Motion v12 in the same tree without conflicts. GSAP owns the scroll-driven animations and entrance sequences; Motion v12 owns per-element interactions like the 3D tilt and clip-path reveals. The handoff between the two is clean and purposeful.",
+      "Deploying to Netlify with the @netlify/plugin-nextjs plugin was the final piece — SSR support for the App Router without any configuration overhead."
+    ]
+  },
+  "collaborators": [
+    { "name": "Adam Elmekadem", "role": "Designer & Developer" }
+  ]
+}
