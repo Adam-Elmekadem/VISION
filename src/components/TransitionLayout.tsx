@@ -26,7 +26,10 @@ export default function TransitionLayout({ children }: { children: React.ReactNo
         anchor.target === "_blank"
       ) return;
 
-      // Already mid-transition — block double-click
+      // Same page — skip transition entirely (pathname never changes → curtain would stay forever)
+      if (href === pathname) return;
+
+      // Already mid-transition — block any new click
       if (transitioning.current) { e.preventDefault(); return; }
 
       e.preventDefault();
@@ -51,7 +54,8 @@ export default function TransitionLayout({ children }: { children: React.ReactNo
     // Capture phase — fires before Next.js's own click handler
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);
-  }, [router]);
+  // pathname in deps so the closure always sees the current route
+  }, [router, pathname]);
 
   // ── ENTRANCE: curtain is already covering the new page; lift it away ───────
   useEffect(() => {
