@@ -12,40 +12,18 @@ import {
   useSpring,
   useTransform,
 } from "motion/react";
+import { getFeaturedProducts, type Product } from "@/lib/products";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+const FEATURED = getFeaturedProducts();
 
-const PRODUCTS = [
-  {
-    id: "phantom-i",
-    name: "Phantom I",
-    collection: "SS25",
-    price: "$320",
-    tag: "New Drop",
-    image:
-      "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    id: "noir-ii",
-    name: "Noir II",
-    collection: "SS25",
-    price: "$280",
-    tag: "Bestseller",
-    image:
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    id: "eclipse",
-    name: "Eclipse",
-    collection: "SS25",
-    price: "$350",
-    tag: "Limited",
-    image:
-      "https://images.unsplash.com/photo-1508296695527-9b57e44e49e5?auto=format&fit=crop&w=900&q=85",
-  },
-];
+function productTag(p: Product): string {
+  if (p.isLimited)    return "Limited";
+  if (p.isBestseller) return "Bestseller";
+  if (p.isNew)        return "New Drop";
+  return p.collection;
+}
 
-function TiltCard({ product }: { product: (typeof PRODUCTS)[0] }) {
+function TiltCard({ product }: { product: Product }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -87,7 +65,7 @@ function TiltCard({ product }: { product: (typeof PRODUCTS)[0] }) {
         {/* Image */}
         <div className="product-img-wrap">
           <Image
-            src={product.image}
+            src={product.coverImage}
             alt={product.name}
             fill
             sizes="(max-width: 1440px) 33vw, 480px"
@@ -111,14 +89,14 @@ function TiltCard({ product }: { product: (typeof PRODUCTS)[0] }) {
 
         {/* Info */}
         <div className="product-info">
-          <span className="product-tag">{product.tag}</span>
+          <span className="product-tag">{productTag(product)}</span>
           <h3 className="product-name">{product.name}</h3>
-          <span className="product-price">{product.price}</span>
+          <span className="product-price">${product.price}</span>
         </div>
 
         {/* CTA arrow */}
         <Link
-          href={`/product/${product.id}`}
+          href={`/product/${product.slug}`}
           className="product-cta"
           aria-label={`View ${product.name}`}
         >
@@ -139,11 +117,12 @@ function TiltCard({ product }: { product: (typeof PRODUCTS)[0] }) {
 
 export default function FeaturedDrop() {
   const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
+  const titleRef   = useRef<HTMLHeadingElement>(null);
 
   useGSAP(
     () => {
-      // Word-by-word title reveal
+      gsap.registerPlugin(ScrollTrigger);
+
       const words = titleRef.current?.querySelectorAll(".reveal-word-inner");
       if (words) {
         gsap.from(words, {
@@ -162,8 +141,6 @@ export default function FeaturedDrop() {
     { scope: sectionRef }
   );
 
-  const titleWords = ["The", "Drop."];
-
   return (
     <section ref={sectionRef} className="featured-section" id="featured">
       <div className="section-wrap">
@@ -173,11 +150,10 @@ export default function FeaturedDrop() {
               Featured Collection
             </p>
             <h2 ref={titleRef} className="section-title featured-title">
-              {titleWords.map((word, i) => (
+              {["The", "Drop."].map((word, i, arr) => (
                 <span key={i} className="reveal-word">
                   <span className="reveal-word-inner">
-                    {word}
-                    {i < titleWords.length - 1 ? " " : ""}
+                    {word}{i < arr.length - 1 ? " " : ""}
                   </span>
                 </span>
               ))}
@@ -198,9 +174,8 @@ export default function FeaturedDrop() {
           </Link>
         </div>
 
-        {/* Product grid */}
         <div className="featured-grid">
-          {PRODUCTS.map((p) => (
+          {FEATURED.map((p) => (
             <TiltCard key={p.id} product={p} />
           ))}
         </div>
