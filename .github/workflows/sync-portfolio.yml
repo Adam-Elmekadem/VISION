@@ -1,38 +1,122 @@
-name: Sync to Portfolio
+name: CI/CD → Portfolio Sync
 
+# ─────────────────────────────────────────────────────────────────
+#  Runs on every push to main AND on pull requests targeting main.
+#  Quality jobs run in parallel. Portfolio sync only fires when
+#  ALL three pass AND the trigger is a direct push to main.
+# ─────────────────────────────────────────────────────────────────
 on:
   push:
     branches: [main]
-  workflow_dispatch: # allow manual trigger from GitHub Actions tab
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "20"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+# ═══════════════════════════════════════════════════════════════════
+#  STAGE 1 — QUALITY GATES  (run in parallel)
+# ═══════════════════════════════════════════════════════════════════
 
 jobs:
-  sync:
-    name: Push project data → AE-Portfolio
+  # ── 1a. TypeScript ─────────────────────────────────────────────
+  typecheck:
+    name: TypeScript
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+  # ── 1b. ESLint ────────────────────────────────────────────────
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npx next lint
+
+  # ── 1c. Production build ──────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.{ts,tsx,css}') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            nextjs-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+# ═══════════════════════════════════════════════════════════════════
+#  STAGE 2 — PORTFOLIO SYNC  (only if all 3 gates pass + push to main)
+# ═══════════════════════════════════════════════════════════════════
+
+  sync-portfolio:
+    name: Sync → AE-Portfolio
+    runs-on: ubuntu-latest
+    needs: [typecheck, lint, build]   # blocked until all 3 are green
+    if: |
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request'
 
     steps:
-      # ── 1. Checkout THIS project ────────────────────────────────────────
+      # ── 1. Checkout THIS project ──────────────────────────────
       - name: Checkout project repo
         uses: actions/checkout@v4
 
-      # ── 2. Validate project.config.json ────────────────────────────────
-      - name: Validate config
+      # ── 2. Validate project.config.json ───────────────────────
+      - name: Validate project.config.json
         id: validate
         run: |
           if [ ! -f project.config.json ]; then
             echo "skip=true" >> $GITHUB_OUTPUT
-            echo "⚠ No project.config.json found — skipping sync."
+            echo "⚠ No project.config.json — skipping portfolio sync."
             exit 0
           fi
 
-          # Check every required field is present and non-empty
-          MISSING=$(cat project.config.json | jq -r '
-            ["id","slug","title","category","year","description","tags","color","accentColor","coverImage","images","story","whyBuilt","collaborators"]
-            | map(select(. as $k | (env | .[$k] // "") == ""))
-            | .[]
-          ' 2>/dev/null || true)
-
-          # Use jq to check required keys exist
           VALID=$(cat project.config.json | jq '
             has("id") and has("slug") and has("title") and has("category") and
             has("year") and has("description") and has("tags") and
@@ -41,18 +125,18 @@ jobs:
           ')
 
           if [ "$VALID" != "true" ]; then
-            echo "❌ project.config.json is missing required fields."
+            echo "❌ project.config.json is missing required fields:"
             cat project.config.json | jq 'keys'
             exit 1
           fi
 
-          SLUG=$(cat project.config.json | jq -r '.slug')
+          SLUG=$(cat project.config.json  | jq -r '.slug')
           TITLE=$(cat project.config.json | jq -r '.title')
           echo "✓ Config valid — slug: $SLUG | title: $TITLE"
-          echo "slug=$SLUG" >> $GITHUB_OUTPUT
-          echo "skip=false" >> $GITHUB_OUTPUT
+          echo "slug=$SLUG"   >> $GITHUB_OUTPUT
+          echo "skip=false"   >> $GITHUB_OUTPUT
 
-      # ── 3. Checkout the Portfolio repo ─────────────────────────────────
+      # ── 3. Checkout AE-Portfolio ──────────────────────────────
       - name: Checkout AE-Portfolio
         if: steps.validate.outputs.skip != 'true'
         uses: actions/checkout@v4
@@ -61,7 +145,7 @@ jobs:
           token: ${{ secrets.PORTFOLIO_PAT }}
           path: _portfolio
 
-      # ── 4. Merge project into projects.json ────────────────────────────
+      # ── 4. Merge project into projects.json ───────────────────
       - name: Merge into projects.json
         if: steps.validate.outputs.skip != 'true'
         run: |
@@ -69,13 +153,9 @@ jobs:
           SLUG=$(echo "$PROJECT" | jq -r '.slug')
           DATA_FILE="_portfolio/src/data/projects.json"
 
-          if [ ! -f "$DATA_FILE" ]; then
-            echo "[]" > "$DATA_FILE"
-          fi
+          [ ! -f "$DATA_FILE" ] && echo "[]" > "$DATA_FILE"
 
           CURRENT=$(cat "$DATA_FILE")
-
-          # If slug exists → update in place. If new → append. Then sort by id.
           UPDATED=$(echo "$CURRENT" | jq \
             --argjson proj "$PROJECT" '
               if any(.[]; .slug == $proj.slug)
@@ -86,23 +166,22 @@ jobs:
             ')
 
           echo "$UPDATED" | jq '.' > "$DATA_FILE"
-          echo "✓ projects.json updated for slug: $SLUG"
+          echo "✓ projects.json updated — slug: $SLUG"
 
-      # ── 5. Commit & push to portfolio ──────────────────────────────────
-      - name: Commit to AE-Portfolio
+      # ── 5. Commit & push ──────────────────────────────────────
+      - name: Push to AE-Portfolio
         if: steps.validate.outputs.skip != 'true'
         run: |
           cd _portfolio
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/data/projects.json
 
           if git diff --cached --quiet; then
             echo "✓ Portfolio already up to date — no commit needed."
           else
-            REPO="${{ github.repository }}"
             SHA="${{ github.sha }}"
-            git commit -m "chore(sync): update ${{ steps.validate.outputs.slug }} from ${REPO}@${SHA:0:7}"
+            git commit -m "chore(sync): update ${{ steps.validate.outputs.slug }} from ${{ github.repository }}@${SHA:0:7}"
             git push
-            echo "✓ Portfolio updated — Netlify will redeploy automatically."
+            echo "✓ Portfolio updated → Netlify rebuild triggered."
           fi
