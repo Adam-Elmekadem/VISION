@@ -2059,3 +2059,295 @@ body {
   .col-body-inner { grid-template-columns: 1fr; gap: 40px; }
   .col-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ═══════════════════════════════════════════
+   SCALE REVEAL
+═══════════════════════════════════════════ */
+.scale-reveal-section {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sr-img {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(25% 25% 25% 25% round 8px);
+  will-change: clip-path;
+}
+
+.sr-img img {
+  filter: brightness(0.8) saturate(0.85);
+}
+
+.sr-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(8, 8, 8, 0.25) 0%,
+    rgba(8, 8, 8, 0.7) 100%
+  );
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.sr-label {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.sr-label-sub {
+  font-family: var(--font-space);
+  font-size: clamp(26px, 3vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.sr-text-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  z-index: 10;
+  border-top: 1px solid rgba(255, 77, 0, 0.18);
+  padding: 18px 0;
+  background: rgba(8, 8, 8, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.sr-text-track {
+  white-space: nowrap;
+  font-family: var(--font-space);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: rgba(240, 240, 240, 0.65);
+  display: inline-block;
+  will-change: transform;
+  padding: 0 32px;
+}
+
+/* ═══════════════════════════════════════════
+   HORIZONTAL SCROLL
+═══════════════════════════════════════════ */
+.hscroll-section {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--black);
+  border-top: 1px solid var(--border);
+}
+
+.hscroll-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 44px 48px 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.hscroll-title {
+  font-family: var(--font-space);
+  font-size: clamp(28px, 3vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin-top: 10px;
+  line-height: 1;
+}
+
+.hscroll-count {
+  font-family: var(--font-space);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  color: var(--muted);
+  text-transform: uppercase;
+  padding-bottom: 3px;
+}
+
+.hscroll-hint {
+  position: absolute;
+  bottom: 18px;
+  right: 48px;
+  font-family: var(--font-space);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 77, 0, 0.45);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hscroll-progress-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 77, 0, 0.1);
+  z-index: 10;
+}
+
+.hscroll-progress-bar {
+  height: 100%;
+  background: var(--orange);
+  transform-origin: left;
+  transform: scaleX(0);
+  will-change: transform;
+}
+
+.hscroll-viewport {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 112px;
+  bottom: 8px;
+  overflow: visible;
+  display: flex;
+  align-items: stretch;
+}
+
+.hscroll-track {
+  display: flex;
+  gap: 2px;
+  padding: 0 48px;
+  width: max-content;
+  height: 100%;
+  align-items: stretch;
+  will-change: transform;
+}
+
+.hscroll-card {
+  flex-shrink: 0;
+  width: 380px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  text-decoration: none;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px transparent;
+  transition: box-shadow 0.35s ease;
+}
+
+.hscroll-card:hover {
+  box-shadow: inset 0 0 0 1px rgba(255, 77, 0, 0.3);
+}
+
+.hscroll-card-img {
+  position: relative;
+  flex: 0 0 62%;
+  overflow: hidden;
+}
+
+.hscroll-card-img img {
+  filter: brightness(0.86) saturate(0.85);
+  transition: transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              filter 0.45s ease;
+}
+
+.hscroll-card:hover .hscroll-card-img img {
+  transform: scale(1.04);
+  filter: brightness(0.94) saturate(1);
+}
+
+.hscroll-card-info {
+  flex: 1;
+  padding: 22px 26px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.hscroll-card-meta {
+  font-family: var(--font-space);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  color: var(--orange);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hscroll-card-name {
+  font-family: var(--font-space);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  color: var(--text);
+  line-height: 1.1;
+  margin-top: 4px;
+}
+
+.hscroll-card-tagline {
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.hscroll-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.hscroll-card-price {
+  font-family: var(--font-space);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.hscroll-card-arrow {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  transition: border-color 0.25s ease, color 0.25s ease;
+}
+
+.hscroll-card:hover .hscroll-card-arrow {
+  border-color: var(--orange);
+  color: var(--orange);
+}
