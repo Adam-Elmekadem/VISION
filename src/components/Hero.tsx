@@ -4,6 +4,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { motion } from "motion/react";
+import ShaderAnimation from "@/components/ShaderAnimation";
 
 gsap.registerPlugin(useGSAP);
 
@@ -44,26 +45,11 @@ export default function Hero() {
 
   return (
     <section className="hero" aria-label="Hero">
-      {/* ── Layered background ── */}
-      <div className="hero-bg" aria-hidden="true">
-        {/* Drop a video at /public/videos/hero.mp4 to enable it */}
-        <video
-          className="hero-video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
-          aria-hidden="true"
-        >
-          <source src="/videos/hero.mp4" type="video/mp4" />
-        </video>
+      {/* ── Full-bleed shader background ── */}
+      <ShaderAnimation />
 
-        {/* CSS aurora fallback (always visible behind the video) */}
-        <div className="hero-aurora" />
-        <div className="hero-grid" />
-        <div className="hero-vignette" />
-      </div>
+      {/* Dark vignette so text stays readable over the shader */}
+      <div className="hero-vignette" aria-hidden="true" />
 
       {/* ── HUD corner decorations ── */}
       <div className="hero-corner hero-corner-tl" aria-hidden="true" />
