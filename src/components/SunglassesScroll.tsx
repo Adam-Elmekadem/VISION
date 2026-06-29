@@ -234,11 +234,11 @@ export default function SunglassesScroll() {
             Vision Eyewear
           </p>
 
-          <h2 className="font-space text-[clamp(42px,5vw,76px)] font-bold tracking-[-0.04em] text-text leading-[0.88]">
+          <h2 className="font-space text-[clamp(42px,5vw,76px)] font-bold tracking-[-0.04em] text-[#f0f0f0] leading-[0.88]">
             See<br />beyond<br />ordinary.
           </h2>
 
-          <p className="font-inter text-sm font-light text-muted leading-[1.85] max-w-[280px]">
+          <p className="font-inter text-sm font-light text-[#555] leading-[1.85] max-w-[280px]">
             Scroll to discover the frame that redefines what eyewear can be.
           </p>
 
@@ -260,7 +260,7 @@ export default function SunglassesScroll() {
             Collection SS/25
           </p>
 
-          <h2 className="font-space text-[clamp(36px,4.4vw,66px)] font-bold tracking-[-0.04em] text-text leading-[0.9] mb-9">
+          <h2 className="font-space text-[clamp(36px,4.4vw,66px)] font-bold tracking-[-0.04em] text-[#f0f0f0] leading-[0.9] mb-9">
             {["Engineered", "beyond", "the visible."].map((line, i) => (
               <span key={i} className="overflow-hidden block">
                 <span
@@ -274,7 +274,7 @@ export default function SunglassesScroll() {
           </h2>
 
           <p
-            className="sg-right-desc font-inter text-sm font-light text-muted leading-[1.85] max-w-[290px] mb-10"
+            className="sg-right-desc font-inter text-sm font-light text-[#555] leading-[1.85] max-w-[290px] mb-10"
             style={{ opacity: 0, transform: "translateY(18px)" }}
           >
             Precision-crafted frames that merge aerospace-grade materials with

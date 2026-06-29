@@ -31,6 +31,10 @@
   --text-ghost: rgba(240, 240, 240, 0.25);
   --text-dim: rgba(240, 240, 240, 0.45);
   --text-mid: rgba(240, 240, 240, 0.65);
+  /* Text on dark images — always white, never overridden by light theme */
+  --text-on-dark: #f0f0f0;
+  --text-on-dark-dim: rgba(240, 240, 240, 0.45);
+  --text-on-dark-mid: rgba(240, 240, 240, 0.65);
 }
 
 /* Light theme — toggled by adding .light to <html> */
@@ -495,7 +499,7 @@ html.light {
 }
 
 .hero-search::placeholder {
-  color: rgba(240, 240, 240, 0.2);
+  color: var(--text-ghost);
   letter-spacing: 0.22em;
   font-size: 11px;
 }
@@ -808,7 +812,7 @@ html.light {
   font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--text);
+  color: var(--text-on-dark);
   line-height: 1.1;
 }
 
@@ -816,7 +820,7 @@ html.light {
   font-family: var(--font-space);
   font-size: 14px;
   font-weight: 400;
-  color: var(--text-dim);
+  color: var(--text-on-dark-dim);
   letter-spacing: 0.06em;
 }
 
@@ -1989,7 +1993,7 @@ html.light {
   font-size: clamp(28px, 3vw, 44px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--text);
+  color: var(--text-on-dark);
   line-height: 1.05;
   margin-bottom: 8px;
 }
@@ -1998,7 +2002,7 @@ html.light {
   font-family: var(--font-inter);
   font-size: 14px;
   font-weight: 300;
-  color: var(--text-mid);
+  color: var(--text-on-dark-mid);
   line-height: 1.5;
 }
 
@@ -2203,7 +2207,7 @@ html.light {
   font-size: clamp(26px, 3vw, 46px);
   font-weight: 700;
   letter-spacing: -0.025em;
-  color: var(--text);
+  color: var(--text-on-dark);
   line-height: 1.1;
 }
 
