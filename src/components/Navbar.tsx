@@ -5,6 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useCart } from "@/store/cart";
+import ThemeToggle from "@/components/ThemeToggle";
 
 gsap.registerPlugin(useGSAP);
 
@@ -73,6 +74,8 @@ export default function Navbar() {
 
         {/* Actions */}
         <div ref={actionsRef} className="navbar-actions">
+          <ThemeToggle />
+
           <button
             className="navbar-icon-btn"
             aria-label="Search"

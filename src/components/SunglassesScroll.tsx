@@ -198,7 +198,8 @@ export default function SunglassesScroll() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen bg-black overflow-hidden"
+      className="relative w-full h-screen overflow-hidden"
+      style={{ background: "#080808" }}
     >
       {/* Three.js canvas — behind everything */}
       <div ref={canvasRef} className="absolute inset-0 z-0" />

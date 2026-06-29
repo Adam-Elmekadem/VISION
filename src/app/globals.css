@@ -5,9 +5,11 @@
    DESIGN TOKENS
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 :root {
+  /* Brand (same in both themes) */
   --orange: #ff4d00;
   --orange-bright: #ff6b35;
   --orange-dim: rgba(255, 77, 0, 0.08);
+  /* Dark theme defaults */
   --black: #080808;
   --surface: #0f0f0f;
   --surface-2: #161616;
@@ -16,21 +18,54 @@
   --text: #f0f0f0;
   --muted: #555555;
   --muted-2: #333333;
+  /* Font stacks */
   --font-space: var(--font-space-var), 'Space Grotesk', sans-serif;
   --font-inter: var(--font-inter-var), 'Inter', sans-serif;
+  /* Semi-transparent UI backgrounds */
+  --nav-bg: rgba(8, 8, 8, 0.82);
+  --filterbar-bg: rgba(8, 8, 8, 0.92);
+  --input-bg: rgba(15, 15, 15, 0.85);
+  --input-bg-focus: rgba(15, 15, 15, 0.95);
+  --text-bar-bg: rgba(8, 8, 8, 0.5);
+  /* Opacity-based text tints */
+  --text-ghost: rgba(240, 240, 240, 0.25);
+  --text-dim: rgba(240, 240, 240, 0.45);
+  --text-mid: rgba(240, 240, 240, 0.65);
+}
+
+/* Light theme — toggled by adding .light to <html> */
+html.light {
+  --orange-dim: rgba(255, 77, 0, 0.07);
+  --black: #f8f7f4;
+  --surface: #f0eeeb;
+  --surface-2: #e8e5e0;
+  --border: #dddad5;
+  --border-bright: #cbc8c2;
+  --text: #0d0d0d;
+  --muted: #88857f;
+  --muted-2: #b2afa9;
+  --nav-bg: rgba(248, 247, 244, 0.88);
+  --filterbar-bg: rgba(248, 247, 244, 0.92);
+  --input-bg: rgba(240, 238, 235, 0.85);
+  --input-bg-focus: rgba(240, 238, 235, 0.96);
+  --text-bar-bg: rgba(240, 238, 235, 0.8);
+  --text-ghost: rgba(10, 10, 10, 0.35);
+  --text-dim: rgba(10, 10, 10, 0.5);
+  --text-mid: rgba(10, 10, 10, 0.65);
 }
 
 @theme inline {
-  --color-orange: #ff4d00;
-  --color-orange-bright: #ff6b35;
-  --color-black: #080808;
-  --color-surface: #0f0f0f;
-  --color-surface-2: #161616;
-  --color-border: #1c1c1c;
-  --color-border-bright: #2a2a2a;
-  --color-text: #f0f0f0;
-  --color-muted: #555555;
-  --color-muted-2: #333333;
+  /* Reference :root variables so Tailwind utilities respond to theme changes */
+  --color-orange: var(--orange);
+  --color-orange-bright: var(--orange-bright);
+  --color-black: var(--black);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-bright: var(--border-bright);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
   --font-space: var(--font-space-var), 'Space Grotesk', sans-serif;
   --font-inter: var(--font-inter-var), 'Inter', sans-serif;
   --animate-ring-pulse: ring-pulse 5s ease-in-out infinite;
@@ -188,8 +223,8 @@
   z-index: 1000;
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  background: rgba(8, 8, 8, 0.75);
-  border-bottom: 1px solid rgba(28, 28, 28, 0.6);
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--border);
 }
 
 .navbar-inner {
@@ -239,7 +274,7 @@
 }
 
 .nav-links:has(a:hover) a {
-  color: rgba(240, 240, 240, 0.25);
+  color: var(--text-ghost);
   filter: blur(1.8px);
   transition: color 0.18s ease, filter 0.18s ease;
 }
@@ -442,7 +477,7 @@
 
 .hero-search {
   width: 100%;
-  background: rgba(15, 15, 15, 0.85);
+  background: var(--input-bg);
   border: 1px solid rgba(40, 40, 40, 0.9);
   border-radius: 0;
   color: var(--text);
@@ -467,7 +502,7 @@
 
 .hero-search:focus {
   border-color: var(--orange);
-  background: rgba(15, 15, 15, 0.95);
+  background: var(--input-bg-focus);
   box-shadow:
     0 0 0 1px rgba(255, 77, 0, 0.25),
     0 0 60px rgba(255, 77, 0, 0.07),
@@ -586,7 +621,7 @@
   font-size: 8px;
   font-weight: 600;
   letter-spacing: 0.35em;
-  color: rgba(240, 240, 240, 0.25);
+  color: var(--text-ghost);
   text-transform: uppercase;
 }
 
@@ -781,7 +816,7 @@
   font-family: var(--font-space);
   font-size: 14px;
   font-weight: 400;
-  color: rgba(240, 240, 240, 0.45);
+  color: var(--text-dim);
   letter-spacing: 0.06em;
 }
 
@@ -834,7 +869,7 @@
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .philosophy-section {
   padding: 160px 0;
-  background: #0a0a0a;
+  background: var(--black);
   overflow: hidden;
 }
 
@@ -1043,7 +1078,7 @@
    FOOTER
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .footer {
-  background: #0a0a0a;
+  background: var(--black);
   border-top: 1px solid var(--border);
   padding: 88px 0 44px;
 }
@@ -1242,7 +1277,7 @@
   position: sticky;
   top: 72px;
   z-index: 100;
-  background: rgba(8, 8, 8, 0.92);
+  background: var(--filterbar-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
@@ -1963,7 +1998,7 @@
   font-family: var(--font-inter);
   font-size: 14px;
   font-weight: 300;
-  color: rgba(240, 240, 240, 0.6);
+  color: var(--text-mid);
   line-height: 1.5;
 }
 
@@ -2181,7 +2216,7 @@
   z-index: 10;
   border-top: 1px solid rgba(255, 77, 0, 0.18);
   padding: 18px 0;
-  background: rgba(8, 8, 8, 0.5);
+  background: var(--text-bar-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   pointer-events: none;
@@ -2194,7 +2229,7 @@
   font-weight: 600;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.65);
+  color: var(--text-mid);
   display: inline-block;
   will-change: transform;
   padding: 0 32px;

@@ -32,6 +32,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Runs synchronously before paint to apply saved theme and avoid flash */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('vision-theme'),d=window.matchMedia('(prefers-color-scheme: light)').matches;if(t==='light'||(t===null&&d))document.documentElement.classList.add('light');}catch(e){}})();` }} />
+      </head>
       <body suppressHydrationWarning>
         <div className="grain-overlay" aria-hidden="true" />
         <div className="scanlines" aria-hidden="true" />
