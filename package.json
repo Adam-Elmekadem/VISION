@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
+    "@tailwindcss/vite": "^4.3.1",
     "fuse.js": "^7.4.2",
     "gsap": "^3.15.0",
     "motion": "^12.41.0",
@@ -21,14 +22,14 @@
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "^5.15.12",
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.3.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.185.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
-    "tailwindcss": "^4",
+    "tailwindcss": "^4.3.1",
     "typescript": "^5"
   }
 }
