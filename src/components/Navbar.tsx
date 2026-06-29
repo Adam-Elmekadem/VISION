@@ -21,7 +21,6 @@ export default function Navbar() {
   const linksRef = useRef<HTMLUListElement>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
   const totalItems = useCart((s) => s.totalItems());
-  const toggleCart = useCart((s) => s.toggleCart);
 
   useGSAP(
     () => {
@@ -96,11 +95,10 @@ export default function Navbar() {
             </svg>
           </button>
 
-          <button
+          <Link
+            href="/cart"
             className="navbar-icon-btn"
             aria-label={`Cart (${totalItems} items)`}
-            type="button"
-            onClick={toggleCart}
             style={{ position: "relative" }}
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -113,7 +111,7 @@ export default function Navbar() {
                 {totalItems > 9 ? "9+" : totalItems}
               </span>
             )}
-          </button>
+          </Link>
         </div>
       </div>
     </nav>
