@@ -14,7 +14,7 @@ export default function SunglassesScroll() {
   const modelRef   = useRef<THREE.Group | null>(null);
 
   // GSAP writes here; Three.js render loop reads every frame
-  const state = useRef({ rotX: 0.05, rotY: -0.2, rotZ: 0.08, posX: 3.8, posY: 0 });
+  const state = useRef({ rotX: 0.05, rotY: -0.2, rotZ: 0.08, posX: 2.8, posY: 0 });
 
   // ── Three.js ────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -127,7 +127,7 @@ export default function SunglassesScroll() {
     // ── Force initial states immediately on mount ─────────────────────────────
     // Right text: hidden before the animation reaches them
     gsap.set(".sg-right-label", { opacity: 0, y: 18 });
-    gsap.set(".sg-right-line",  { opacity: 0, yPercent: 110 });
+    gsap.set(".sg-right-title", { opacity: 0, y: 22 });
     gsap.set(".sg-right-desc",  { opacity: 0, y: 18 });
     gsap.set(".sg-right-cta",   { opacity: 0, y: 12 });
     // Left intro text: visible (no set needed — natural state)
@@ -180,9 +180,9 @@ export default function SunglassesScroll() {
         { opacity: 1, y: 0, duration: 0.4 },
         1.3
       )
-      .to(".sg-right-line",
-        { opacity: 1, yPercent: 0, stagger: 0.1, duration: 0.7, ease: "power4.out" },
-        1.4
+      .to(".sg-right-title",
+        { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+        1.42
       )
       .to(".sg-right-desc",
         { opacity: 1, y: 0, duration: 0.5 },
@@ -260,17 +260,11 @@ export default function SunglassesScroll() {
             Collection SS/25
           </p>
 
-          <h2 className="font-space text-[clamp(36px,4.4vw,66px)] font-bold tracking-[-0.04em] text-[#f0f0f0] leading-[0.9] mb-9">
-            {["Engineered", "beyond", "the visible."].map((line, i) => (
-              <span key={i} className="overflow-hidden block">
-                <span
-                  className="sg-right-line block"
-                  style={{ opacity: 0, transform: "translateY(110%)" }}
-                >
-                  {line}
-                </span>
-              </span>
-            ))}
+          <h2
+            className="sg-right-title font-space text-[clamp(36px,4.4vw,66px)] font-bold tracking-[-0.04em] text-[#f0f0f0] leading-[0.9] mb-9"
+            style={{ opacity: 0, transform: "translateY(22px)" }}
+          >
+            Engineered<br />beyond<br />the visible.
           </h2>
 
           <p
