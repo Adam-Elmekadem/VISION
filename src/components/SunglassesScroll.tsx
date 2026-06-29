@@ -127,7 +127,7 @@ export default function SunglassesScroll() {
     // ── Force initial states immediately on mount ─────────────────────────────
     // Right text: hidden before the animation reaches them
     gsap.set(".sg-right-label", { opacity: 0, y: 18 });
-    gsap.set(".sg-right-line",  { yPercent: 110 });
+    gsap.set(".sg-right-line",  { opacity: 0, yPercent: 110 });
     gsap.set(".sg-right-desc",  { opacity: 0, y: 18 });
     gsap.set(".sg-right-cta",   { opacity: 0, y: 12 });
     // Left intro text: visible (no set needed — natural state)
@@ -177,19 +177,19 @@ export default function SunglassesScroll() {
 
       // ── Right text reveals as glasses settle on left ───────────────────────
       .to(".sg-right-label",
-        { opacity: 1, y: 0, clearProps: "transform", duration: 0.4 },
+        { opacity: 1, y: 0, duration: 0.4 },
         1.3
       )
       .to(".sg-right-line",
-        { yPercent: 0, clearProps: "transform", stagger: 0.1, duration: 0.7, ease: "power4.out" },
+        { opacity: 1, yPercent: 0, stagger: 0.1, duration: 0.7, ease: "power4.out" },
         1.4
       )
       .to(".sg-right-desc",
-        { opacity: 1, y: 0, clearProps: "transform", duration: 0.5 },
+        { opacity: 1, y: 0, duration: 0.5 },
         1.88
       )
       .to(".sg-right-cta",
-        { opacity: 1, y: 0, clearProps: "transform", duration: 0.4 },
+        { opacity: 1, y: 0, duration: 0.4 },
         2.08
       );
 
@@ -265,7 +265,7 @@ export default function SunglassesScroll() {
               <span key={i} className="overflow-hidden block">
                 <span
                   className="sg-right-line block"
-                  style={{ transform: "translateY(110%)" }}
+                  style={{ opacity: 0, transform: "translateY(110%)" }}
                 >
                   {line}
                 </span>
