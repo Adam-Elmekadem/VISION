@@ -9,9 +9,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 
 export default function SunglassesScroll() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const canvasRef  = useRef<HTMLDivElement>(null);
-  const modelRef   = useRef<THREE.Group | null>(null);
+  const sectionRef    = useRef<HTMLElement>(null);
+  const canvasRef     = useRef<HTMLDivElement>(null);
+  const modelRef      = useRef<THREE.Group | null>(null);
+  const rightLabelRef = useRef<HTMLParagraphElement>(null);
+  const rightTitleRef = useRef<HTMLHeadingElement>(null);
+  const rightDescRef  = useRef<HTMLParagraphElement>(null);
+  const rightCtaWrap  = useRef<HTMLDivElement>(null);
 
   // GSAP writes here; Three.js render loop reads every frame
   const state = useRef({ rotX: 0.05, rotY: -0.2, rotZ: 0.08, posX: 2.8, posY: 0 });
@@ -124,13 +128,11 @@ export default function SunglassesScroll() {
   useGSAP(() => {
     gsap.registerPlugin(ScrollTrigger);
 
-    // ── Force initial states immediately on mount ─────────────────────────────
-    // Right text: hidden before the animation reaches them
-    gsap.set(".sg-right-label", { opacity: 0, y: 18 });
-    gsap.set(".sg-right-title", { opacity: 0, y: 22 });
-    gsap.set(".sg-right-desc",  { opacity: 0, y: 18 });
-    gsap.set(".sg-right-cta",   { opacity: 0, y: 12 });
-    // Left intro text: visible (no set needed — natural state)
+    // ── Force initial states via refs (avoids scoped-selector issues on h2) ──
+    gsap.set(rightLabelRef.current, { opacity: 0, y: 18 });
+    gsap.set(rightTitleRef.current, { opacity: 0, y: 22 });
+    gsap.set(rightDescRef.current,  { opacity: 0, y: 18 });
+    gsap.set(rightCtaWrap.current,  { opacity: 0, y: 12 });
 
     const s = state.current;
 
@@ -176,22 +178,10 @@ export default function SunglassesScroll() {
       }, 1)
 
       // ── Right text reveals as glasses settle on left ───────────────────────
-      .to(".sg-right-label",
-        { opacity: 1, y: 0, duration: 0.4 },
-        1.3
-      )
-      .to(".sg-right-title",
-        { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
-        1.42
-      )
-      .to(".sg-right-desc",
-        { opacity: 1, y: 0, duration: 0.5 },
-        1.88
-      )
-      .to(".sg-right-cta",
-        { opacity: 1, y: 0, duration: 0.4 },
-        2.08
-      );
+      .to(rightLabelRef.current, { opacity: 1, y: 0, duration: 0.4 }, 1.3)
+      .to(rightTitleRef.current, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.42)
+      .to(rightDescRef.current,  { opacity: 1, y: 0, duration: 0.5 }, 1.88)
+      .to(rightCtaWrap.current,  { opacity: 1, y: 0, duration: 0.4 }, 2.08);
 
   }, { scope: sectionRef });
 
@@ -252,45 +242,45 @@ export default function SunglassesScroll() {
 
         {/* RIGHT — reveals after glasses settle on the left */}
         <div className="flex flex-col justify-center px-14 pr-20">
-          {/* All right-side elements start invisible (GSAP reveals them) */}
           <p
+            ref={rightLabelRef}
             className="sg-right-label font-space text-[9px] font-semibold tracking-[0.5em] uppercase text-orange mb-7"
-            style={{ opacity: 0, transform: "translateY(18px)" }}
           >
             Collection SS/25
           </p>
 
           <h2
+            ref={rightTitleRef}
             className="sg-right-title font-space text-[clamp(36px,4.4vw,66px)] font-bold tracking-[-0.04em] text-[#f0f0f0] leading-[0.9] mb-9"
-            style={{ opacity: 0, transform: "translateY(22px)" }}
           >
             Engineered<br />beyond<br />the visible.
           </h2>
 
           <p
+            ref={rightDescRef}
             className="sg-right-desc font-inter text-sm font-light text-[#555] leading-[1.85] max-w-[290px] mb-10"
-            style={{ opacity: 0, transform: "translateY(18px)" }}
           >
             Precision-crafted frames that merge aerospace-grade materials with
             an unmistakable aesthetic — built for those who see further.
           </p>
 
-          <Link
-            href="/shop"
-            className="sg-right-cta pointer-events-auto inline-flex items-center gap-4 self-start font-space text-xs font-bold tracking-[0.28em] uppercase text-black bg-orange px-12 py-5 cursor-none transition-colors duration-300 hover:bg-text"
-            style={{ opacity: 0, transform: "translateY(12px)" }}
-          >
-            Explore frames
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path
-                d="M1 7h12M8 2l5 5-5 5"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Link>
+          <div ref={rightCtaWrap} className="pointer-events-auto self-start">
+            <Link
+              href="/shop"
+              className="sg-right-cta inline-flex items-center gap-4 font-space text-xs font-bold tracking-[0.28em] uppercase text-black bg-orange px-12 py-5 cursor-none transition-colors duration-300 hover:bg-text"
+            >
+              Explore frames
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M1 7h12M8 2l5 5-5 5"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
+          </div>
         </div>
       </div>
 

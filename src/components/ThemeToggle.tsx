@@ -1,20 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
+
+function subscribe(cb: () => void) {
+  const observer = new MutationObserver(cb);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+  return () => observer.disconnect();
+}
 
 export default function ThemeToggle() {
-  const [isLight, setIsLight] = useState(false);
-
-  useEffect(() => {
-    setIsLight(document.documentElement.classList.contains("light"));
-  }, []);
+  const isLight = useSyncExternalStore(
+    subscribe,
+    () => document.documentElement.classList.contains("light"),
+    () => false,
+  );
 
   const toggle = () => {
     const html = document.documentElement;
     const next = !html.classList.contains("light");
     html.classList.toggle("light", next);
     localStorage.setItem("vision-theme", next ? "light" : "dark");
-    setIsLight(next);
   };
 
   return (
@@ -25,7 +33,6 @@ export default function ThemeToggle() {
       type="button"
     >
       {isLight ? (
-        /* Moon — switch to dark */
         <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
           <path
             d="M14.5 9.5A6.5 6.5 0 1 1 7.5 2.5a5 5 0 0 0 7 7z"
@@ -35,7 +42,6 @@ export default function ThemeToggle() {
           />
         </svg>
       ) : (
-        /* Sun — switch to light */
         <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
           <circle cx="8.5" cy="8.5" r="3.25" stroke="currentColor" strokeWidth="1.25" />
           <path
