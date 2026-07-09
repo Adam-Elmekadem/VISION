@@ -138,10 +138,10 @@ export default function Navbar() {
                       </div>
                       {/* Links */}
                       <div className="py-1">
-                        {/* Dashboard — admin only */}
+                        {/* Dashboard — admin only: logs into PHP session then opens /admin */}
                         {user!.is_admin && (
                           <a
-                            href={`${(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1").replace("/api/v1", "")}/admin`}
+                            href={`${(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1").replace("/api/v1", "")}/admin-access?token=${useAuth.getState().token}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={() => setDropOpen(false)}
