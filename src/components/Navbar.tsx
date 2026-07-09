@@ -125,7 +125,7 @@ export default function Navbar() {
           <Link
             href="/cart"
             className="navbar-icon-btn"
-            aria-label={`Cart (${totalItems} items)`}
+            aria-label={mounted ? `Cart (${totalItems} items)` : "Cart"}
             style={{ position: "relative" }}
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
