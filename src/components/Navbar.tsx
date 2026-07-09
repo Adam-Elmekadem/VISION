@@ -2,9 +2,11 @@
 
 import { useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useCart } from "@/store/cart";
+import { useAuth } from "@/store/auth";
 import ThemeToggle from "@/components/ThemeToggle";
 
 gsap.registerPlugin(useGSAP);
@@ -21,7 +23,19 @@ export default function Navbar() {
   const logoRef = useRef<HTMLAnchorElement>(null);
   const linksRef = useRef<HTMLUListElement>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
+  const router     = useRouter();
   const totalItems = useCart((s) => s.totalItems());
+  const { user, clearAuth, isLoggedIn } = useAuth();
+
+  const handleAccount = () => {
+    if (isLoggedIn()) {
+      // If logged in, clicking account logs out (or could go to /account)
+      clearAuth();
+      router.push("/");
+    } else {
+      router.push("/login");
+    }
+  };
 
   useGSAP(
     () => {
@@ -88,14 +102,22 @@ export default function Navbar() {
           </button>
 
           <button
-            className="navbar-icon-btn"
-            aria-label="Account"
+            className="navbar-icon-btn relative"
+            aria-label={isLoggedIn() ? `Account (${user?.name}) — click to sign out` : "Sign in"}
             type="button"
+            onClick={handleAccount}
+            title={isLoggedIn() ? `Signed in as ${user?.name} — click to sign out` : "Sign in / Register"}
           >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.25" />
-              <path d="M2 16c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-            </svg>
+            {isLoggedIn() && user ? (
+              <span className="flex items-center justify-center w-[18px] h-[18px] rounded-full bg-orange text-[#0d0d0d] font-space text-[9px] font-bold leading-none">
+                {user.name.charAt(0).toUpperCase()}
+              </span>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.25" />
+                <path d="M2 16c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+              </svg>
+            )}
           </button>
 
           <Link
