@@ -1,0 +1,1 @@
+(function(){try{var t=localStorage.getItem('vision-theme'),d=window.matchMedia('(prefers-color-scheme: light)').matches;if(t==='light'||(t===null&&d))document.documentElement.classList.add('light');}catch(e){}})();

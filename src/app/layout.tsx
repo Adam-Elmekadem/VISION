@@ -33,11 +33,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable}`} suppressHydrationWarning>
-      <head>
-        {/* Applies saved theme before first paint to prevent flash */}
-        <Script id="theme-init" strategy="beforeInteractive">{`(function(){try{var t=localStorage.getItem('vision-theme'),d=window.matchMedia('(prefers-color-scheme: light)').matches;if(t==='light'||(t===null&&d))document.documentElement.classList.add('light');}catch(e){}})();`}</Script>
-      </head>
       <body suppressHydrationWarning>
+        {/*
+          Loaded as an external file so React 19 doesn't warn about inline scripts.
+          beforeInteractive injects it before hydration to avoid theme flash.
+        */}
+        <Script src="/theme-init.js" strategy="beforeInteractive" />
         <div className="grain-overlay" aria-hidden="true" />
         <div className="scanlines" aria-hidden="true" />
         <CustomCursor />
