@@ -138,6 +138,27 @@ export default function Navbar() {
                       </div>
                       {/* Links */}
                       <div className="py-1">
+                        {/* Dashboard — admin only */}
+                        {user!.is_admin && (
+                          <a
+                            href={`${(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1").replace("/api/v1", "")}/admin`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setDropOpen(false)}
+                            className="flex items-center gap-3 px-4 py-[10px] font-space text-[10px] font-semibold tracking-[0.18em] uppercase text-orange hover:bg-surface-2 transition-colors cursor-none border-b border-border"
+                          >
+                            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                              <rect x="1.5" y="1.5" width="4" height="4" rx="0.5" stroke="currentColor" strokeWidth="1.1" />
+                              <rect x="7.5" y="1.5" width="4" height="4" rx="0.5" stroke="currentColor" strokeWidth="1.1" />
+                              <rect x="1.5" y="7.5" width="4" height="4" rx="0.5" stroke="currentColor" strokeWidth="1.1" />
+                              <rect x="7.5" y="7.5" width="4" height="4" rx="0.5" stroke="currentColor" strokeWidth="1.1" />
+                            </svg>
+                            Dashboard
+                            <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden className="ml-auto opacity-50">
+                              <path d="M1.5 7.5 7.5 1.5M4 1.5h3.5v3.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </a>
+                        )}
                         <Link
                           href="/account"
                           onClick={() => setDropOpen(false)}
