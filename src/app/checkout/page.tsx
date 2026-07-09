@@ -3,7 +3,6 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -67,7 +66,7 @@ function SuccessScreen({ orderNumber }: { orderNumber: string }) {
         <div className="ck-success-body flex flex-col gap-4">
           <p className="font-inter text-[15px] font-light text-muted leading-[1.75]">
             Your order <span className="text-text font-semibold">#{orderNumber}</span> has been placed.
-            You'll receive a confirmation email shortly, and we'll notify you when it ships.
+            You&apos;ll receive a confirmation email shortly, and we&apos;ll notify you when it ships.
           </p>
           <p className="font-space text-[9px] font-semibold tracking-[0.4em] uppercase text-orange">
             Thank you for choosing VISION
@@ -87,7 +86,6 @@ function SuccessScreen({ orderNumber }: { orderNumber: string }) {
 function CheckoutForm() {
   const stripe   = useStripe();
   const elements = useElements();
-  const router   = useRouter();
   const { items, totalPrice, clearCart } = useCart();
   const formRef  = useRef<HTMLFormElement>(null);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -40,13 +40,6 @@ const STATS = [
 export default function AboutPage() {
   const pageRef   = useRef<HTMLDivElement>(null);
   const heroRef   = useRef<HTMLElement>(null);
-  const [count, setCount] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setCount(true), 1200);
-    return () => clearTimeout(timer);
-  }, []);
-
   useGSAP(() => {
     // Hero title reveal — each line clips up
     gsap.from(".ab-hero-line", {
@@ -212,8 +205,8 @@ export default function AboutPage() {
 
             <div className="ab-hero-cta flex items-center gap-8 flex-wrap">
               <p className="font-inter text-[15px] font-light text-[rgba(240,240,240,0.55)] leading-[1.7] max-w-[400px]">
-                We didn't set out to make eyewear. We set out to
-                make something that hadn't existed yet.
+                We didn&apos;t set out to make eyewear. We set out to
+                make something that hadn&apos;t existed yet.
               </p>
               <Link
                 href="/collections"
@@ -244,16 +237,16 @@ export default function AboutPage() {
             </div>
             <div>
               <p className="ab-manifesto-text font-space text-[clamp(22px,3vw,40px)] font-light text-text leading-[1.35] tracking-[-0.02em]">
-                "The face is the most personal canvas. Every frame
-                we make is a statement — not about fashion, but
+                &ldquo;The face is the most personal canvas. Every frame
+                we make is a statement &mdash; not about fashion, but
                 about the kind of person who sees the world
-                differently, and wants the world to know it."
+                differently, and wants the world to know it.&rdquo;
               </p>
               <p className="ab-manifesto-text font-inter text-[15px] font-light text-muted leading-[1.9] mt-8 max-w-[580px]">
                 We are a team of engineers and designers who met at the intersection of aerospace
                 manufacturing and contemporary aesthetics. We asked a simple question: why does
                 eyewear still look the same as it did in 1990? Three years later, VISION exists
-                because the answer wasn't good enough.
+                because the answer wasn&apos;t good enough.
               </p>
             </div>
           </div>
