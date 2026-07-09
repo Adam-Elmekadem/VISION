@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useSyncExternalStore } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { useSyncExternalStore } from "react";
 import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -23,20 +24,17 @@ export default function Navbar() {
   const logoRef = useRef<HTMLAnchorElement>(null);
   const linksRef = useRef<HTMLUListElement>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
-  const router     = useRouter();
-  const totalItems = useCart((s) => s.totalItems());
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const router      = useRouter();
+  const totalItems  = useCart((s) => s.totalItems());
   const { user, clearAuth, isLoggedIn } = useAuth();
-  // true on client, false on server — no setState needed, prevents hydration mismatch
   const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
+  const [dropOpen, setDropOpen] = useState(false);
 
-  const handleAccount = () => {
-    if (isLoggedIn()) {
-      // If logged in, clicking account logs out (or could go to /account)
-      clearAuth();
-      router.push("/");
-    } else {
-      router.push("/login");
-    }
+  const handleSignOut = () => {
+    setDropOpen(false);
+    clearAuth();
+    router.push("/");
   };
 
   useGSAP(
@@ -103,24 +101,96 @@ export default function Navbar() {
             </svg>
           </button>
 
-          <button
-            className="navbar-icon-btn relative"
-            aria-label="Account"
-            type="button"
-            onClick={handleAccount}
-            title={mounted && isLoggedIn() ? `Signed in as ${user?.name} — click to sign out` : "Sign in / Register"}
-          >
-            {mounted && isLoggedIn() && user ? (
-              <span className="flex items-center justify-center w-[18px] h-[18px] rounded-full bg-orange text-[#0d0d0d] font-space text-[9px] font-bold leading-none">
-                {user.name.charAt(0).toUpperCase()}
-              </span>
+          {/* Account — dropdown when logged in, link to /login when logged out */}
+          <div className="relative" ref={dropdownRef}>
+            {mounted && isLoggedIn() ? (
+              <>
+                <button
+                  className="navbar-icon-btn relative"
+                  aria-label={`Account — ${user?.name}`}
+                  aria-expanded={dropOpen}
+                  type="button"
+                  onClick={() => setDropOpen((o) => !o)}
+                >
+                  <span className="flex items-center justify-center w-[18px] h-[18px] rounded-full bg-orange text-[#0d0d0d] font-space text-[9px] font-bold leading-none">
+                    {user!.name.charAt(0).toUpperCase()}
+                  </span>
+                </button>
+
+                {dropOpen && (
+                  <>
+                    {/* Click-outside overlay */}
+                    <div
+                      className="fixed inset-0 z-[49]"
+                      onClick={() => setDropOpen(false)}
+                      aria-hidden
+                    />
+                    {/* Dropdown panel */}
+                    <div className="absolute right-0 top-[calc(100%+10px)] z-50 w-[200px] bg-surface border border-border shadow-xl">
+                      {/* User info */}
+                      <div className="px-4 py-3 border-b border-border">
+                        <p className="font-space text-[11px] font-bold tracking-[0.02em] text-text truncate">
+                          {user!.name}
+                        </p>
+                        <p className="font-inter text-[11px] text-muted truncate mt-0.5">
+                          {user!.email}
+                        </p>
+                      </div>
+                      {/* Links */}
+                      <div className="py-1">
+                        <Link
+                          href="/account"
+                          onClick={() => setDropOpen(false)}
+                          className="flex items-center gap-3 px-4 py-[10px] font-space text-[10px] font-semibold tracking-[0.18em] uppercase text-text hover:text-orange hover:bg-surface-2 transition-colors cursor-none"
+                        >
+                          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                            <circle cx="6.5" cy="4" r="2.5" stroke="currentColor" strokeWidth="1.1" />
+                            <path d="M1.5 11.5c0-2.485 2.239-4.5 5-4.5s5 2.015 5 4.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+                          </svg>
+                          My Account
+                        </Link>
+                        <Link
+                          href="/account/orders"
+                          onClick={() => setDropOpen(false)}
+                          className="flex items-center gap-3 px-4 py-[10px] font-space text-[10px] font-semibold tracking-[0.18em] uppercase text-text hover:text-orange hover:bg-surface-2 transition-colors cursor-none"
+                        >
+                          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                            <rect x="1.5" y="2" width="10" height="9" rx="1" stroke="currentColor" strokeWidth="1.1" />
+                            <path d="M4 5h5M4 7.5h3" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+                          </svg>
+                          My Orders
+                        </Link>
+                      </div>
+                      {/* Sign out */}
+                      <div className="border-t border-border py-1">
+                        <button
+                          type="button"
+                          onClick={handleSignOut}
+                          className="w-full flex items-center gap-3 px-4 py-[10px] font-space text-[10px] font-semibold tracking-[0.18em] uppercase text-muted hover:text-orange hover:bg-surface-2 transition-colors cursor-none text-left"
+                        >
+                          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                            <path d="M5 2H2.5A1 1 0 0 0 1.5 3v7a1 1 0 0 0 1 1H5M8.5 9.5 11.5 6.5 8.5 3.5M11.5 6.5H5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </>
             ) : (
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.25" />
-                <path d="M2 16c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-              </svg>
+              <Link
+                href="/login"
+                className="navbar-icon-btn"
+                aria-label="Sign in"
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.25" />
+                  <path d="M2 16c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+                </svg>
+              </Link>
             )}
-          </button>
+          </div>
 
           <Link
             href="/cart"
