@@ -393,15 +393,15 @@ export default function CartPage() {
                 </motion.span>
               </div>
 
-              <button
+              <Link
+                href="/checkout"
                 className="w-full bg-orange border-none text-black font-space text-[10px] font-bold tracking-[0.32em] uppercase py-5 px-6 cursor-none flex items-center justify-center gap-4 transition-colors duration-300 hover:bg-text"
-                type="button"
               >
                 Proceed to checkout
                 <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
                   <path d="M1 7.5h13M8.5 2l5.5 5.5-5.5 5.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-              </button>
+              </Link>
 
               <Link
                 href="/shop"
