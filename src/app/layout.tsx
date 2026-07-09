@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import CustomCursor from "@/components/CustomCursor";
 import TransitionLayout from "@/components/TransitionLayout";
@@ -33,8 +34,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
-        {/* Runs synchronously before paint to apply saved theme and avoid flash */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('vision-theme'),d=window.matchMedia('(prefers-color-scheme: light)').matches;if(t==='light'||(t===null&&d))document.documentElement.classList.add('light');}catch(e){}})();` }} />
+        {/* Applies saved theme before first paint to prevent flash */}
+        <Script id="theme-init" strategy="beforeInteractive">{`(function(){try{var t=localStorage.getItem('vision-theme'),d=window.matchMedia('(prefers-color-scheme: light)').matches;if(t==='light'||(t===null&&d))document.documentElement.classList.add('light');}catch(e){}})();`}</Script>
       </head>
       <body suppressHydrationWarning>
         <div className="grain-overlay" aria-hidden="true" />

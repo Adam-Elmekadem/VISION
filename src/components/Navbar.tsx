@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import gsap from "gsap";
@@ -26,6 +26,8 @@ export default function Navbar() {
   const router     = useRouter();
   const totalItems = useCart((s) => s.totalItems());
   const { user, clearAuth, isLoggedIn } = useAuth();
+  // true on client, false on server — no setState needed, prevents hydration mismatch
+  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
 
   const handleAccount = () => {
     if (isLoggedIn()) {
@@ -103,12 +105,12 @@ export default function Navbar() {
 
           <button
             className="navbar-icon-btn relative"
-            aria-label={isLoggedIn() ? `Account (${user?.name}) — click to sign out` : "Sign in"}
+            aria-label="Account"
             type="button"
             onClick={handleAccount}
-            title={isLoggedIn() ? `Signed in as ${user?.name} — click to sign out` : "Sign in / Register"}
+            title={mounted && isLoggedIn() ? `Signed in as ${user?.name} — click to sign out` : "Sign in / Register"}
           >
-            {isLoggedIn() && user ? (
+            {mounted && isLoggedIn() && user ? (
               <span className="flex items-center justify-center w-[18px] h-[18px] rounded-full bg-orange text-[#0d0d0d] font-space text-[9px] font-bold leading-none">
                 {user.name.charAt(0).toUpperCase()}
               </span>
@@ -131,7 +133,7 @@ export default function Navbar() {
               <circle cx="7.5" cy="14.5" r="1.2" fill="currentColor" />
               <circle cx="13.5" cy="14.5" r="1.2" fill="currentColor" />
             </svg>
-            {totalItems > 0 && (
+            {mounted && totalItems > 0 && (
               <span className="cart-badge" aria-label={`${totalItems} items in cart`}>
                 {totalItems > 9 ? "9+" : totalItems}
               </span>
