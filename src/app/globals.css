@@ -2607,11 +2607,15 @@ html.light {
   .shop-header-inner { flex-direction: column; align-items: flex-start; gap: 12px; }
   .shop-filterbar-inner { padding: 12px 0; height: auto; gap: 10px; }
 
-  /* Horizontal scroll section */
-  .hscroll-header { padding: 32px 20px 0; }
-  .hscroll-track { padding: 0 20px; }
-  .hscroll-hint { right: 20px; }
-  .hscroll-card { width: 300px; }
+  /* Horizontal scroll section — native touch scroll on mobile */
+  .hscroll-section { height: auto; overflow: visible; }
+  .hscroll-header { position: relative; top: auto; left: auto; right: auto; padding: 48px 20px 28px; pointer-events: auto; }
+  .hscroll-viewport { position: relative; top: auto; left: auto; right: auto; bottom: auto; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; display: block; }
+  .hscroll-viewport::-webkit-scrollbar { display: none; }
+  .hscroll-track { padding: 0 20px 32px; width: max-content; height: auto; }
+  .hscroll-card { width: 260px; height: 380px; }
+  .hscroll-progress-track { display: none; }
+  .hscroll-hint { position: relative; bottom: auto; right: auto; padding: 12px 20px 24px; text-align: right; }
 
   /* SunglassesScroll — hide right text panel on mobile */
   .sg-right-panel { display: none; }

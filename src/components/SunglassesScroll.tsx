@@ -24,6 +24,7 @@ export default function SunglassesScroll() {
   useEffect(() => {
     const container = canvasRef.current;
     if (!container) return;
+    if (window.matchMedia("(max-width: 1023px)").matches) return; // skip 3D on mobile
 
     const scene = new THREE.Scene();
 
@@ -127,6 +128,8 @@ export default function SunglassesScroll() {
   // ── GSAP scroll ─────────────────────────────────────────────────────────────
   useGSAP(() => {
     gsap.registerPlugin(ScrollTrigger);
+
+    if (window.matchMedia("(max-width: 1023px)").matches) return; // skip pin/scroll on mobile
 
     // ── Force initial states via refs (avoids scoped-selector issues on h2) ──
     gsap.set(rightLabelRef.current, { opacity: 0, y: 18 });

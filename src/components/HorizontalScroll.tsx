@@ -19,6 +19,21 @@ export default function HorizontalScroll() {
       const track = trackRef.current;
       if (!track) return;
 
+      const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+
+      if (isMobile) {
+        // Simple fade-in on mobile; no pinned horizontal scroll
+        gsap.from(".hscroll-card", {
+          opacity: 0,
+          y: 30,
+          stagger: 0.06,
+          duration: 0.7,
+          ease: "power3.out",
+          scrollTrigger: { trigger: sectionRef.current, start: "top 85%", once: true },
+        });
+        return;
+      }
+
       gsap.to(track, {
         x: () => -(track.scrollWidth - window.innerWidth),
         ease: "none",
