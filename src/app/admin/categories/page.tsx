@@ -5,13 +5,19 @@ import { adminApi, AdminCategory } from "@/lib/admin-api";
 type FormState = { name: string; description: string; image_url: string; sort_order: string; is_active: boolean };
 const BLANK: FormState = { name: "", description: "", image_url: "", sort_order: "0", is_active: true };
 
+const TH = "px-3.5 py-2.5 text-left text-[9px] font-semibold tracking-[0.28em] uppercase text-muted border-b border-border whitespace-nowrap";
+const TD = "px-3.5 py-3 border-b border-border text-text align-middle";
+const INP = "bg-surface border border-border text-text font-space text-[12px] px-3 py-2 outline-none focus:border-orange transition-colors w-full";
+const LBL = "block font-space text-[10px] font-semibold tracking-[0.16em] uppercase text-muted mb-1.5";
+function FG({ children }: { children: React.ReactNode }) { return <div className="flex flex-col mb-4 last:mb-0">{children}</div>; }
+
 export default function CategoriesPage() {
-  const [cats, setCats]       = useState<AdminCategory[]>([]);
-  const [error, setError]     = useState("");
-  const [editing, setEditing] = useState<AdminCategory | null>(null);
+  const [cats, setCats]         = useState<AdminCategory[]>([]);
+  const [error, setError]       = useState("");
+  const [editing, setEditing]   = useState<AdminCategory | null>(null);
   const [creating, setCreating] = useState(false);
-  const [form, setForm]       = useState<FormState>(BLANK);
-  const [saving, setSaving]   = useState(false);
+  const [form, setForm]         = useState<FormState>(BLANK);
+  const [saving, setSaving]     = useState(false);
 
   const load = () => adminApi.categories().then(setCats).catch((e) => setError(e.message));
   useEffect(() => { load(); }, []);
@@ -19,27 +25,17 @@ export default function CategoriesPage() {
   const openEdit = (c: AdminCategory) => { setEditing(c); setCreating(false); setForm({ name: c.name, description: c.description ?? "", image_url: c.image_url ?? "", sort_order: String(c.sort_order), is_active: c.is_active }); };
   const openCreate = () => { setEditing(null); setCreating(true); setForm(BLANK); };
   const close = () => { setEditing(null); setCreating(false); };
-
-  const set = (key: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((f) => ({ ...f, [key]: e.target.value }));
+  const set = (key: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const save = async () => {
-    setSaving(true);
-    setError("");
+    setSaving(true); setError("");
     try {
       const payload = { ...form, sort_order: parseInt(form.sort_order, 10) };
-      if (editing) {
-        await adminApi.updateCategory(editing.id, payload);
-      } else {
-        await adminApi.createCategory(payload);
-      }
-      close();
-      load();
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Save failed");
-    } finally {
-      setSaving(false);
-    }
+      if (editing) { await adminApi.updateCategory(editing.id, payload); }
+      else { await adminApi.createCategory(payload); }
+      close(); load();
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : "Save failed"); }
+    finally { setSaving(false); }
   };
 
   const del = async (id: number, name: string) => {
@@ -49,34 +45,38 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="adm-page">
-      <div className="adm-page-header">
+    <div className="p-10 pb-16 max-w-[1300px]">
+      <div className="flex items-start justify-between mb-8 gap-4">
         <div>
-          <h1 className="adm-page-title">Categories</h1>
-          <p className="adm-page-sub">{cats.length} categories</p>
+          <h1 className="font-space text-[22px] font-bold tracking-[-0.02em] text-text m-0 leading-none">Categories</h1>
+          <p className="font-space text-[11px] text-muted mt-1.5">{cats.length} categories</p>
         </div>
-        <button className="adm-btn-primary" onClick={openCreate} type="button">+ New Category</button>
+        <button className="bg-orange text-[#0d0d0d] font-space text-[10px] font-bold tracking-[0.2em] uppercase py-2 px-5 border-none cursor-pointer hover:opacity-85 transition-opacity" onClick={openCreate} type="button">+ New Category</button>
       </div>
 
-      {error && <p className="adm-error">{error}</p>}
+      {error && <p className="px-4 py-3 bg-red-500/10 border border-red-500/30 text-[#f87171] font-space text-xs mb-5">{error}</p>}
 
-      <div className="adm-table-wrap">
-        <table className="adm-table">
+      <div className="border border-border overflow-x-auto">
+        <table className="w-full border-collapse font-space text-[12px]">
           <thead>
-            <tr><th>Name</th><th>Slug</th><th>Products</th><th>Order</th><th>Status</th><th></th></tr>
+            <tr>{["Name","Slug","Products","Order","Status",""].map((h) => <th key={h} className={TH}>{h}</th>)}</tr>
           </thead>
           <tbody>
             {cats.map((c) => (
-              <tr key={c.id}>
-                <td className="adm-item-name">{c.name}</td>
-                <td className="adm-mono adm-muted">{c.slug}</td>
-                <td>{c.products_count ?? 0}</td>
-                <td>{c.sort_order}</td>
-                <td><span className={`adm-badge ${c.is_active ? "adm-badge-success" : "adm-badge-muted"}`}>{c.is_active ? "Active" : "Inactive"}</span></td>
-                <td>
-                  <div className="adm-row-actions">
-                    <button className="adm-row-link" onClick={() => openEdit(c)} type="button">Edit</button>
-                    <button className="adm-row-link adm-danger" onClick={() => del(c.id, c.name)} type="button">Delete</button>
+              <tr key={c.id} className="hover:[&>td]:bg-white/[0.02]">
+                <td className={`${TD} font-semibold`}>{c.name}</td>
+                <td className={`${TD} font-mono text-muted`}>{c.slug}</td>
+                <td className={TD}>{c.products_count ?? 0}</td>
+                <td className={TD}>{c.sort_order}</td>
+                <td className={TD}>
+                  <span className={`inline-block px-2 py-0.5 font-space text-[9px] font-semibold tracking-[0.12em] uppercase rounded-sm ${c.is_active ? "bg-[rgba(34,197,94,0.12)] text-[#4ade80]" : "bg-white/[0.06] text-muted"}`}>
+                    {c.is_active ? "Active" : "Inactive"}
+                  </span>
+                </td>
+                <td className={TD}>
+                  <div className="flex items-center gap-3">
+                    <button className="font-space text-[10px] font-semibold tracking-[0.1em] uppercase text-orange bg-transparent border-none cursor-pointer p-0 hover:opacity-70" onClick={() => openEdit(c)} type="button">Edit</button>
+                    <button className="font-space text-[10px] font-semibold tracking-[0.1em] uppercase text-[#f87171] bg-transparent border-none cursor-pointer p-0 hover:opacity-70" onClick={() => del(c.id, c.name)} type="button">Delete</button>
                   </div>
                 </td>
               </tr>
@@ -85,24 +85,25 @@ export default function CategoriesPage() {
         </table>
       </div>
 
-      {/* Inline form panel */}
       {(editing || creating) && (
-        <div className="adm-drawer-backdrop" onClick={close}>
-          <div className="adm-drawer" onClick={(e) => e.stopPropagation()}>
-            <h2 className="adm-card-title">{editing ? `Edit: ${editing.name}` : "New Category"}</h2>
-            <div className="adm-form-group"><label className="adm-label">Name *</label><input className="adm-input adm-input-full" required value={form.name} onChange={set("name")} /></div>
-            <div className="adm-form-group"><label className="adm-label">Description</label><textarea className="adm-textarea" rows={3} value={form.description} onChange={set("description")} /></div>
-            <div className="adm-form-group"><label className="adm-label">Image URL</label><input className="adm-input adm-input-full" value={form.image_url} onChange={set("image_url")} /></div>
-            <div className="adm-form-row">
-              <div className="adm-form-group"><label className="adm-label">Sort Order</label><input className="adm-input adm-input-full" type="number" value={form.sort_order} onChange={set("sort_order")} /></div>
-              <label className="adm-toggle-row" style={{ paddingTop: 22 }}>
-                <span className="adm-label" style={{ margin: 0 }}>Active</span>
-                <button type="button" role="switch" aria-checked={form.is_active} className={`adm-toggle ${form.is_active ? "on" : ""}`} onClick={() => setForm((f) => ({ ...f, is_active: !f.is_active }))} />
-              </label>
-            </div>
-            <div className="adm-drawer-actions">
-              <button className="adm-btn-ghost" onClick={close} type="button">Cancel</button>
-              <button className="adm-btn-primary" onClick={save} disabled={saving} type="button">{saving ? "Saving…" : "Save"}</button>
+        <div className="fixed inset-0 bg-black/60 z-[200] flex justify-end" onClick={close}>
+          <div className="w-[400px] bg-surface border-l border-border flex flex-col p-6 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <h2 className="font-space text-[13px] font-bold tracking-[0.1em] text-text mb-6">{editing ? `Edit: ${editing.name}` : "New Category"}</h2>
+            <FG><label className={LBL}>Name *</label><input className={INP} required value={form.name} onChange={set("name")} /></FG>
+            <FG><label className={LBL}>Description</label><textarea className={`${INP} resize-y`} rows={3} value={form.description} onChange={set("description")} /></FG>
+            <FG><label className={LBL}>Image URL</label><input className={INP} value={form.image_url} onChange={set("image_url")} /></FG>
+            <FG><label className={LBL}>Sort Order</label><input className={INP} type="number" value={form.sort_order} onChange={set("sort_order")} /></FG>
+            <label className="flex items-center justify-between py-2 cursor-pointer mb-4">
+              <span className={LBL} style={{ margin: 0, cursor: "pointer" }}>Active</span>
+              <button type="button" role="switch" aria-checked={form.is_active} onClick={() => setForm((f) => ({ ...f, is_active: !f.is_active }))}
+                className={`relative inline-flex w-9 h-5 rounded-full border transition-colors shrink-0 ${form.is_active ? "bg-orange border-orange" : "bg-transparent border-border"}`}
+              >
+                <span className={`absolute top-[3px] left-[3px] w-[14px] h-[14px] rounded-full transition-transform ${form.is_active ? "translate-x-4 bg-[#0d0d0d]" : "translate-x-0 bg-white/40"}`} />
+              </button>
+            </label>
+            <div className="flex gap-2 mt-auto pt-4 border-t border-border">
+              <button className="flex-1 font-space text-[10px] font-semibold tracking-[0.14em] uppercase border border-border py-2.5 text-text bg-transparent cursor-pointer hover:border-orange hover:text-orange transition-colors" onClick={close} type="button">Cancel</button>
+              <button className="flex-1 bg-orange text-[#0d0d0d] font-space text-[10px] font-bold tracking-[0.2em] uppercase py-2.5 border-none cursor-pointer hover:opacity-85 disabled:opacity-50 transition-opacity" onClick={save} disabled={saving} type="button">{saving ? "Saving…" : "Save"}</button>
             </div>
           </div>
         </div>
