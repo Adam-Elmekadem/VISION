@@ -33,8 +33,12 @@ export default function ProductForm({ initial }: Props) {
   const [categories, setCategories] = useState<AdminCategory[]>([]);
   const [colors, setColors]         = useState<AdminColor[]>([]);
   const [sizes, setSizes]           = useState<AdminSize[]>([]);
-  const [saving, setSaving]         = useState(false);
-  const [error, setError]           = useState("");
+  const [saving, setSaving]           = useState(false);
+  const [error, setError]             = useState("");
+  const [coverUploading, setCoverUploading] = useState(false);
+  const [galleryUploading, setGalleryUploading] = useState(false);
+  const [gallery, setGallery]         = useState<string[]>(initial?.images ?? []);
+  const [dragOver, setDragOver]       = useState<"cover" | "gallery" | null>(null);
 
   const [form, setForm] = useState({
     name:              initial?.name ?? "",
@@ -51,12 +55,35 @@ export default function ProductForm({ initial }: Props) {
     is_new:            initial?.is_new ?? false,
     is_limited:        initial?.is_limited ?? false,
     cover_image:       initial?.cover_image ?? "",
-    images:            (initial?.images ?? []).join("\n"),
     meta_title:        initial?.meta_title ?? "",
     meta_description:  initial?.meta_description ?? "",
   });
   const [selectedColors, setSelectedColors] = useState<number[]>(initial?.colors?.map((c) => c.id) ?? []);
   const [selectedSizes,  setSelectedSizes]  = useState<number[]>(initial?.sizes?.map((s) => s.id) ?? []);
+
+  const uploadCover = async (file: File) => {
+    setCoverUploading(true);
+    try { const url = await adminApi.uploadImage(file); setForm((f) => ({ ...f, cover_image: url })); }
+    catch (e: unknown) { setError(e instanceof Error ? e.message : "Upload failed"); }
+    finally { setCoverUploading(false); }
+  };
+
+  const uploadGallery = async (files: FileList | File[]) => {
+    const arr = Array.from(files).slice(0, 5 - gallery.length);
+    if (!arr.length) return;
+    setGalleryUploading(true);
+    try {
+      const urls = await Promise.all(arr.map((f) => adminApi.uploadImage(f)));
+      setGallery((g) => [...g, ...urls].slice(0, 5));
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : "Upload failed"); }
+    finally { setGalleryUploading(false); }
+  };
+
+  const onDrop = (zone: "cover" | "gallery") => (e: React.DragEvent) => {
+    e.preventDefault(); setDragOver(null);
+    if (zone === "cover") { const f = e.dataTransfer.files[0]; if (f) uploadCover(f); }
+    else { uploadGallery(e.dataTransfer.files); }
+  };
 
   useEffect(() => {
     Promise.all([adminApi.categories(), adminApi.colors(), adminApi.sizes()])
@@ -79,7 +106,7 @@ export default function ProductForm({ initial }: Props) {
         compare_price: form.compare_price ? parseFloat(form.compare_price) : undefined,
         stock:         parseInt(form.stock, 10),
         category_id:   form.category_id ? parseInt(form.category_id, 10) : undefined,
-        images:        form.images.split("\n").map((u) => u.trim()).filter(Boolean),
+        images:        gallery,
         color_ids:     selectedColors,
         size_ids:      selectedSizes,
       };
@@ -115,8 +142,85 @@ export default function ProductForm({ initial }: Props) {
 
         <div className="bg-surface border border-border p-6">
           <h2 className={CARD_TITLE}>Images</h2>
-          <FG><label className={LBL}>Cover Image URL</label><input className={INP} value={form.cover_image} onChange={set("cover_image")} placeholder="https://res.cloudinary.com/…" /></FG>
-          <FG><label className={LBL}>Gallery URLs (one per line)</label><textarea className={`${INP} resize-y`} rows={5} value={form.images} onChange={set("images")} placeholder={"https://res.cloudinary.com/…\nhttps://res.cloudinary.com/…"} /></FG>
+
+          {/* Cover image */}
+          <div className="mb-5">
+            <label className={LBL}>Cover Image</label>
+            <div
+              className={`relative border-2 border-dashed transition-colors ${dragOver === "cover" ? "border-orange bg-orange/5" : "border-border"} ${form.cover_image ? "" : "p-6 flex flex-col items-center justify-center gap-2 cursor-pointer"}`}
+              onDragOver={(e) => { e.preventDefault(); setDragOver("cover"); }}
+              onDragLeave={() => setDragOver(null)}
+              onDrop={onDrop("cover")}
+              onClick={() => { if (!form.cover_image) document.getElementById("cover-input")?.click(); }}
+            >
+              <input id="cover-input" type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCover(f); e.target.value = ""; }} />
+              {coverUploading ? (
+                <div className="flex flex-col items-center gap-2 py-6">
+                  <div className="w-6 h-6 rounded-full border-2 border-border border-t-orange animate-spin" />
+                  <span className="font-space text-[10px] text-muted">Uploading…</span>
+                </div>
+              ) : form.cover_image ? (
+                <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={form.cover_image} alt="Cover" className="w-full h-48 object-cover" />
+                  <div className="absolute top-2 right-2 flex gap-1.5">
+                    <button type="button" onClick={(e) => { e.stopPropagation(); document.getElementById("cover-input")?.click(); }}
+                      className="bg-black/70 text-white font-space text-[9px] font-bold tracking-[0.1em] uppercase px-2.5 py-1.5 hover:bg-orange hover:text-[#0d0d0d] transition-colors">
+                      Change
+                    </button>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); setForm((f) => ({ ...f, cover_image: "" })); }}
+                      className="bg-black/70 text-[#f87171] font-space text-[9px] font-bold tracking-[0.1em] uppercase px-2.5 py-1.5 hover:bg-red-500/20 transition-colors">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-muted">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <p className="font-space text-[11px] text-muted text-center">Drop image here or <span className="text-orange">click to browse</span></p>
+                  <p className="font-space text-[10px] text-muted/60">JPG, PNG, WebP — max 8 MB</p>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Gallery */}
+          <div>
+            <label className={LBL}>Gallery <span className="normal-case font-normal text-muted/60">(up to 5)</span></label>
+            <div className="grid grid-cols-3 gap-2">
+              {gallery.map((url, i) => (
+                <div key={url} className="relative aspect-square bg-white/[0.04]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => setGallery((g) => g.filter((_, j) => j !== i))}
+                    className="absolute top-1 right-1 w-5 h-5 bg-black/70 text-white flex items-center justify-center hover:bg-red-500/80 transition-colors text-[11px] leading-none">
+                    ×
+                  </button>
+                </div>
+              ))}
+              {gallery.length < 5 && (
+                <div
+                  className={`aspect-square border-2 border-dashed transition-colors flex flex-col items-center justify-center gap-1 cursor-pointer ${dragOver === "gallery" ? "border-orange bg-orange/5" : "border-border hover:border-text/40"}`}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver("gallery"); }}
+                  onDragLeave={() => setDragOver(null)}
+                  onDrop={onDrop("gallery")}
+                  onClick={() => document.getElementById("gallery-input")?.click()}
+                >
+                  <input id="gallery-input" type="file" accept="image/*" multiple className="hidden" onChange={(e) => { if (e.target.files) { uploadGallery(e.target.files); e.target.value = ""; }}} />
+                  {galleryUploading ? (
+                    <div className="w-5 h-5 rounded-full border-2 border-border border-t-orange animate-spin" />
+                  ) : (
+                    <>
+                      <span className="font-space text-xl text-muted leading-none">+</span>
+                      <span className="font-space text-[9px] text-muted/70">Add</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="bg-surface border border-border p-6">

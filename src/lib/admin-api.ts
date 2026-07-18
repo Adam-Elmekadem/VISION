@@ -7,6 +7,7 @@ async function req<T>(path: string, opts?: RequestInit): Promise<T> {
     ...opts,
     headers: { ...authHeaders(), ...(opts?.headers ?? {}) },
   });
+
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message ?? `Request failed: ${res.status}`);
@@ -80,6 +81,8 @@ export interface AdminProduct {
   category_id?: number;
   category?: { id: number; name: string };
   collection_slug?: string;
+  meta_title?: string;
+  meta_description?: string;
   colors?: AdminColor[];
   sizes?: AdminSize[];
   created_at: string;
@@ -168,4 +171,21 @@ export const adminApi = {
     req<AdminSize>(`/sizes/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteSize: (id: number) =>
     req<{ message: string }>(`/sizes/${id}`, { method: "DELETE" }),
+
+  // Image upload — multipart FormData, must NOT include Content-Type (browser sets boundary)
+  uploadImage: async (file: File): Promise<string> => {
+    const { "Content-Type": _ct, ...safeHeaders } = authHeaders() as Record<string, string>;
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch(`${BASE}/admin/upload`, {
+      method: "POST",
+      headers: { ...safeHeaders, Accept: "application/json" },
+      body: form,
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.message ?? `Upload failed: ${res.status}`);
+    }
+    return (await res.json()).url as string;
+  },
 };
