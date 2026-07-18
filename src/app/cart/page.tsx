@@ -216,12 +216,12 @@ export default function CartPage() {
           </div>
         </div>
 
-        {/* 55 / 45 split */}
-        <div className="grid grid-cols-[55fr_45fr] items-start min-h-[calc(100vh-72px-38px)]">
+        {/* 55 / 45 split — preview panel hidden on mobile */}
+        <div className="grid grid-cols-1 lg:grid-cols-[55fr_45fr] items-start min-h-[calc(100vh-72px-38px)]">
 
-          {/* ── Left: sticky preview ─────────────────────── */}
+          {/* ── Left: sticky preview — desktop only ──────── */}
           <aside
-            className="sticky top-[72px] h-[calc(100vh-72px)] bg-surface border-r border-border overflow-hidden"
+            className="hidden lg:block sticky top-[72px] h-[calc(100vh-72px)] bg-surface border-r border-border overflow-hidden"
             aria-hidden
           >
             <AnimatePresence mode="wait">
@@ -308,7 +308,7 @@ export default function CartPage() {
           <section className="bg-black min-h-[calc(100vh-72px-38px)] flex flex-col">
 
             {/* Header */}
-            <div className="px-11 pt-11 pb-6 border-b border-border flex items-end justify-between gap-4">
+            <div className="px-5 pt-8 pb-6 lg:px-11 lg:pt-11 border-b border-border flex items-end justify-between gap-4">
               <div>
                 <p className="font-space text-[9px] font-semibold tracking-[0.42em] uppercase text-orange mb-2">
                   Your Selection
@@ -331,7 +331,7 @@ export default function CartPage() {
             </div>
 
             {/* Shipping bar */}
-            <div className="px-11 py-4 border-b border-border bg-surface">
+            <div className="px-5 lg:px-11 py-4 border-b border-border bg-surface">
               <div className="h-px bg-[rgba(255,77,0,0.12)] mb-2.5 relative overflow-hidden">
                 <motion.div
                   className="absolute left-0 top-0 h-full bg-orange"
@@ -349,7 +349,7 @@ export default function CartPage() {
             </div>
 
             {/* Items */}
-            <div className="flex-1 px-11">
+            <div className="flex-1 px-5 lg:px-11">
               <AnimatePresence mode="popLayout">
                 {items.map((item) => (
                   <CartItemCard
@@ -365,7 +365,7 @@ export default function CartPage() {
             </div>
 
             {/* Order summary */}
-            <div className="px-11 pt-7 pb-11 border-t border-border bg-surface">
+            <div className="px-5 lg:px-11 pt-7 pb-8 lg:pb-11 border-t border-border bg-surface">
               <div className="flex items-center justify-between py-2.5 border-b border-border">
                 <span className="font-inter text-xs font-light text-muted tracking-[0.05em]">Subtotal</span>
                 <span className="font-space text-xs font-medium text-text tracking-[0.06em]">${subtotal.toLocaleString()}</span>

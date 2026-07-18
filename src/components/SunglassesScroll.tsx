@@ -240,7 +240,7 @@ export default function SunglassesScroll() {
         </div>
 
         {/* RIGHT — reveals after glasses settle on the left */}
-        <div className="flex flex-col justify-center px-14 pr-20">
+        <div className="sg-right-panel flex flex-col justify-center px-14 pr-20">
           <p
             ref={rightLabelRef}
             className="sg-right-label font-space text-[9px] font-semibold tracking-[0.5em] uppercase text-orange mb-7"
